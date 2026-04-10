@@ -1,5 +1,8 @@
 # elevenagents-livekit-plugin
 
+[![PyPI version](https://img.shields.io/pypi/v/elevenagents-livekit-plugin)](https://pypi.org/project/elevenagents-livekit-plugin/)
+[![Python 3.10+](https://img.shields.io/pypi/pyversions/elevenagents-livekit-plugin)](https://pypi.org/project/elevenagents-livekit-plugin/)
+
 Bridge between LiveKit Agents and ElevenAgents Voice Orchestration.
 
 This plugin connects your existing LiveKit text agents to ElevenLabs Conversational AI, giving them a voice interface with zero changes to your agent logic. It acts as a translator between ElevenLabs' OpenAI-compatible API and LiveKit's real-time text streams.
