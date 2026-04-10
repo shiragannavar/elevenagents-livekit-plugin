@@ -1,4 +1,4 @@
-# elevenagents-livekit-plugin
+# ElevenAgents LiveKit Plugin
 
 [![PyPI version](https://img.shields.io/pypi/v/elevenagents-livekit-plugin)](https://pypi.org/project/elevenagents-livekit-plugin/)
 [![Python 3.10+](https://img.shields.io/pypi/pyversions/elevenagents-livekit-plugin)](https://pypi.org/project/elevenagents-livekit-plugin/)
