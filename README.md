@@ -25,7 +25,7 @@ Give your existing LiveKit agent a voice. No rewrite needed.
           )
 ```
 
-That is it. Your agent logic, your LLM, your prompts, your custom tools -- everything stays the same. The plugin handles all the plumbing between your agent and ElevenLabs voice.
+That is it. Your agent logic, your LLM, your prompts, your custom tools -- everything stays the same. The plugin handles all the plumbing between your agent and ElevenAgents voice.
 
 ### What you keep
 
@@ -36,7 +36,7 @@ That is it. Your agent logic, your LLM, your prompts, your custom tools -- every
 
 ### What you get
 
-- Voice input and output through ElevenLabs
+- Voice input and output through ElevenAgents
 - Built-in voice tools: end the call, pause, switch languages
 - Real-time streaming with low latency
 - Works with both LiveKit OSS and LiveKit Cloud
@@ -52,7 +52,7 @@ pip install elevenagents-livekit-plugin
 ```mermaid
 sequenceDiagram
     participant User as User (Phone/Web)
-    participant EL as ElevenLabs Voice Engine
+    participant EL as ElevenAgents Voice Engine
     participant Bridge as ElevenAgents Bridge
     participant LK as LiveKit Server
     participant Agent as LiveKit Agent
@@ -81,7 +81,7 @@ sequenceDiagram
 ```
 +-------------------+       +---------------------+       +------------------+
 |                   |  SSE  |                     | Text  |                  |
-|  ElevenLabs       |<----->|  ElevenAgents       |<----->|  LiveKit         |
+|  ElevenAgents       |<----->|  ElevenAgents       |<----->|  LiveKit         |
 |  Voice Engine     |       |  Bridge             |       |  Server          |
 |                   |       |  (FastAPI on :8013)  |       |                  |
 +-------------------+       +---------------------+       +------------------+
@@ -108,17 +108,17 @@ sequenceDiagram
 
 ## How It Works
 
-1. **ElevenLabs** handles speech-to-text and text-to-speech. It sends transcribed user speech to the bridge as an OpenAI-compatible `/v1/chat/completions` request.
+1. **ElevenAgents** handles speech-to-text and text-to-speech. It sends transcribed user speech to the bridge as an OpenAI-compatible `/v1/chat/completions` request.
 
 2. **The Bridge** extracts the user message and forwards it to the LiveKit room via a text stream on the `lk.chat` topic.
 
 3. **Your LiveKit Agent** receives the text, processes it with your LLM of choice, and streams the response back.
 
-4. **The Bridge** receives the agent's response chunks and formats them as OpenAI SSE events, streaming them back to ElevenLabs.
+4. **The Bridge** receives the agent's response chunks and formats them as OpenAI SSE events, streaming them back to ElevenAgents.
 
-5. **ElevenLabs** converts the text response to speech and plays it to the user.
+5. **ElevenAgents** converts the text response to speech and plays it to the user.
 
-For tool calls (like `end_call` or `language_detection`), the agent sends a specially prefixed message on `lk.chat`. The bridge detects the prefix, parses the tool call, and forwards it to ElevenLabs in the OpenAI `tool_calls` format.
+For tool calls (like `end_call` or `language_detection`), the agent sends a specially prefixed message on `lk.chat`. The bridge detects the prefix, parses the tool call, and forwards it to ElevenAgents in the OpenAI `tool_calls` format.
 
 ---
 
@@ -128,7 +128,7 @@ For tool calls (like `end_call` or `language_detection`), the agent sends a spec
 
 - Python 3.10+
 - A running LiveKit server (local or cloud)
-- An ElevenLabs account with Conversational AI enabled
+- An ElevenAgents account with Conversational AI enabled
 - An OpenAI API key (or any LLM provider supported by LiveKit)
 
 ### Step 1. Install the plugin
@@ -187,7 +187,7 @@ If you do not have an agent yet, the code above is a complete working example.
 
 ### Step 3. Create the bridge
 
-The bridge is a small standalone script that connects your LiveKit room to ElevenLabs:
+The bridge is a small standalone script that connects your LiveKit room to ElevenAgents:
 
 ```python
 # bridge.py
@@ -226,23 +226,23 @@ python agent.py dev
 python bridge.py
 ```
 
-### Step 6. Connect ElevenLabs
+### Step 6. Connect ElevenAgents
 
-Expose the bridge to the internet so ElevenLabs can reach it:
+Expose the bridge to the internet so ElevenAgents can reach it:
 
 ```bash
 ngrok http 8013
 ```
 
-In your ElevenLabs Conversational AI settings, set the custom LLM URL to:
+In your ElevenAgents Conversational AI settings, set the custom LLM URL to:
 
 ```
 https://your-ngrok-url.ngrok-free.app/v1
 ```
 
-ElevenLabs appends `/chat/completions` automatically.
+ElevenAgents appends `/chat/completions` automatically.
 
-Start a conversation in ElevenLabs. Your voice goes to ElevenLabs, gets transcribed, sent to the bridge, forwarded to your LiveKit agent, processed by your LLM, and the response streams back as speech. All in real time.
+Start a conversation in ElevenAgents. Your voice goes to ElevenAgents, gets transcribed, sent to the bridge, forwarded to your LiveKit agent, processed by your LLM, and the response streams back as speech. All in real time.
 
 ---
 
@@ -270,7 +270,7 @@ The bridge waits briefly after the agent's text response for any tool call signa
 
 ## Built-in Tools
 
-The plugin includes ElevenLabs system tools that your agent can call:
+The plugin includes ElevenAgents system tools that your agent can call:
 
 ### `end_call`
 
@@ -336,7 +336,7 @@ elevenagents-livekit-plugin/
       livekit_client.py    # LiveKit room connection and text streaming
       server.py            # FastAPI /v1/chat/completions endpoint
       adapter.py           # OpenAI SSE format conversion
-      tools.py             # ElevenLabs system tools (end_call, etc.)
+      tools.py             # ElevenAgents system tools (end_call, etc.)
   examples/
     basic.py               # Minimal usage example
   pyproject.toml           # Package metadata and dependencies

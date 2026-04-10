@@ -62,7 +62,7 @@ def create_app(lk_client: LiveKitClient, buffer_words: str = DEFAULT_BUFFER_WORD
 
         async def event_stream():
             yield format_first_chunk(model)
-            # Send buffer words immediately so ElevenLabs doesn't time out
+            # Send buffer words immediately so ElevenAgents doesn't time out
             if buffer_words:
                 yield format_chunk(buffer_words, model)
             try:
@@ -74,7 +74,7 @@ def create_app(lk_client: LiveKitClient, buffer_words: str = DEFAULT_BUFFER_WORD
                             event.tool_name, event.tool_args, model
                         )
                         logger.info(
-                            "Forwarding tool call to ElevenLabs: %s",
+                            "Forwarding tool call to ElevenAgents: %s",
                             event.tool_name,
                         )
                 yield format_done_chunk(model)

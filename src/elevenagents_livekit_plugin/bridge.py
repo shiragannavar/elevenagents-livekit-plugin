@@ -72,7 +72,7 @@ class ElevenAgentsBridge:
 
         logger.info("Starting server on %s:%d", self.host, self.port)
         logger.info(
-            "ElevenLabs custom LLM endpoint: http://%s:%d/v1",
+            "ElevenAgents custom LLM endpoint: http://%s:%d/v1",
             self.host,
             self.port,
         )

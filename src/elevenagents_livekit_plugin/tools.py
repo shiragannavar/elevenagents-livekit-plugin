@@ -1,5 +1,5 @@
 """
-Pre-built ElevenLabs tools for LiveKit agents.
+Pre-built ElevenAgents tools for LiveKit agents.
 
 Usage:
     from elevenagents_livekit_plugin import elevenagents_tools
@@ -13,7 +13,7 @@ Usage:
 
 When the agent's LLM calls these tools, they signal back to the bridge
 via the lk.chat TextStream topic. The bridge picks up the signal and
-includes the tool call in the SSE response back to ElevenLabs Voice Engine.
+includes the tool call in the SSE response back to ElevenAgents Voice Engine.
 """
 
 import json
@@ -86,7 +86,7 @@ async def _language_detection(ctx: RunContext, reason: str, language: str) -> st
 
 
 def elevenagents_tools() -> list:
-    """Return all ElevenLabs tools for use in a LiveKit agent.
+    """Return all ElevenAgents tools for use in a LiveKit agent.
 
     Example:
         class MyAgent(Agent):

@@ -9,7 +9,7 @@ Prerequisites:
 Usage:
   python basic.py
 
-Then point ElevenLabs custom LLM to:
+Then point ElevenAgents custom LLM to:
   http://localhost:8013/v1  (or your ngrok URL + /v1)
 """
 
