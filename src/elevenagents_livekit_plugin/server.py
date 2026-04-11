@@ -7,7 +7,7 @@ import fastapi
 from fastapi.responses import StreamingResponse
 
 from .adapter import format_chunk, format_done_chunk, format_first_chunk, format_tool_call
-from .livekit_client import LiveKitClient
+from .session_manager import SessionManager
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger("elevenagents-livekit-plugin.server")
@@ -31,7 +31,7 @@ def extract_text(content) -> str:
 DEFAULT_BUFFER_WORDS = "... "
 
 
-def create_app(lk_client: LiveKitClient, buffer_words: str = DEFAULT_BUFFER_WORDS) -> fastapi.FastAPI:
+def create_app(session_mgr: SessionManager, buffer_words: str = DEFAULT_BUFFER_WORDS) -> fastapi.FastAPI:
     app = fastapi.FastAPI(title="ElevenAgents LiveKit Plugin")
 
     @app.post("/v1/chat/completions")
@@ -60,6 +60,9 @@ def create_app(lk_client: LiveKitClient, buffer_words: str = DEFAULT_BUFFER_WORD
         logger.debug("Extracted user message: %s", user_message)
         model = body.get("model", "livekit-agent")
 
+        # Get or create a session for this conversation
+        lk_client = await session_mgr.get_client(messages)
+
         async def event_stream():
             yield format_first_chunk(model)
             # Send buffer words immediately so ElevenAgents doesn't time out
@@ -87,6 +90,6 @@ def create_app(lk_client: LiveKitClient, buffer_words: str = DEFAULT_BUFFER_WORD
 
     @app.get("/health")
     async def health():
-        return {"status": "ok", "connected": lk_client._connected}
+        return {"status": "ok", "active_sessions": session_mgr.active_count}
 
     return app

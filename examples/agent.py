@@ -1,12 +1,8 @@
 """
-Sample LiveKit text agent using the ElevenAgents plugin.
+Sample LiveKit agent with ElevenAgents voice -- single process.
 
-This agent works with the ElevenAgents bridge to give your
-LiveKit agent voice capabilities through ElevenAgents.
-
-The only changes needed on an existing LiveKit agent are:
-  1. Import elevenagents_tools
-  2. Add them to your Agent's tools list
+The bridge is embedded into the agent, so you only need to run
+one command instead of two separate terminals.
 
 Prerequisites:
   pip install livekit-agents livekit-plugins-openai elevenagents-livekit-plugin
@@ -19,6 +15,9 @@ Environment variables (.env file):
 
 Usage:
   python agent.py dev
+
+Then point ElevenAgents custom LLM to:
+  http://localhost:8013/v1  (or your ngrok URL + /v1)
 """
 
 from dotenv import load_dotenv
@@ -33,7 +32,7 @@ from livekit.agents import (
     room_io,
 )
 from livekit.plugins import openai
-from elevenagents_livekit_plugin import elevenagents_tools  # <-- add this import
+from elevenagents_livekit_plugin import ElevenAgentsBridge, elevenagents_tools
 
 load_dotenv()
 
@@ -60,11 +59,20 @@ class MyAgent(Agent):
     def __init__(self) -> None:
         super().__init__(
             instructions="You are a helpful assistant. Keep responses short and clear. Use the calculator tool for any math questions.",
-            tools=[calculator, *elevenagents_tools()],  # <-- add tools here
+            tools=[calculator, *elevenagents_tools()],
         )
 
 
 server = AgentServer()
+
+# Embed the bridge into the agent -- no separate process needed.
+# Each ElevenAgents conversation gets its own isolated room.
+bridge = ElevenAgentsBridge(
+    room_name="elevenagents",  # prefix for room names
+    port=8013,
+    buffer_words="",
+)
+bridge.embed(server)
 
 
 @server.rtc_session()

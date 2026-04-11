@@ -1,4 +1,4 @@
-"""Main entry point -- wires up the LiveKit client and HTTP server."""
+"""Main entry point -- wires up the session manager and HTTP server."""
 
 import asyncio
 import logging
@@ -7,7 +7,7 @@ import os
 import uvicorn
 from dotenv import load_dotenv
 
-from .livekit_client import LiveKitClient
+from .session_manager import SessionManager
 from .server import create_app
 
 logger = logging.getLogger("elevenagents-livekit-plugin")
@@ -20,8 +20,7 @@ class ElevenAgentsBridge:
         livekit_url: str | None = None,
         api_key: str | None = None,
         api_secret: str | None = None,
-        room_name: str = "elevenagents-bridge",
-        identity: str = "elevenagents-bridge",
+        room_name: str = "elevenagents",
         port: int = 8013,
         host: str = "0.0.0.0",
         buffer_words: str = "... ",
@@ -31,8 +30,7 @@ class ElevenAgentsBridge:
         self.livekit_url = livekit_url or os.getenv("LIVEKIT_URL", "")
         self.api_key = api_key or os.getenv("LIVEKIT_API_KEY", "")
         self.api_secret = api_secret or os.getenv("LIVEKIT_API_SECRET", "")
-        self.room_name = room_name
-        self.identity = identity
+        self.room_prefix = room_name
         self.port = port
         self.host = host
 
@@ -42,26 +40,37 @@ class ElevenAgentsBridge:
                 "set via arguments or environment variables."
             )
 
-        self.lk_client = LiveKitClient(
+        self.session_mgr = SessionManager(
             url=self.livekit_url,
             api_key=self.api_key,
             api_secret=self.api_secret,
-            room_name=self.room_name,
-            identity=self.identity,
+            room_prefix=self.room_prefix,
         )
-        self.app = create_app(self.lk_client, buffer_words=buffer_words)
+        self.app = create_app(self.session_mgr, buffer_words=buffer_words)
 
     def run(self) -> None:
-        """Start the bridge (blocking)."""
+        """Start the bridge as a standalone process (blocking)."""
         asyncio.run(self._run())
 
+    def embed(self, agent_server) -> None:
+        """Embed the bridge into a LiveKit AgentServer.
+
+        Call this before cli.run_app(). The bridge will start automatically
+        when the agent worker starts, so only one process is needed.
+
+        Usage:
+            server = AgentServer()
+            bridge = ElevenAgentsBridge(...)
+            bridge.embed(server)
+            cli.run_app(server)
+        """
+        @agent_server.once("worker_started")
+        def _on_worker_started():
+            asyncio.ensure_future(self._run())
+
     async def _run(self) -> None:
-        # Connect to LiveKit room
-        await self.lk_client.connect()
         logger.info(
-            "Bridge connected to LiveKit at %s, room '%s'",
-            self.livekit_url,
-            self.room_name,
+            "Bridge starting (room prefix: '%s')", self.room_prefix
         )
 
         # Start HTTP server (log_config=None preserves our logging setup)
@@ -81,4 +90,4 @@ class ElevenAgentsBridge:
         try:
             await server.serve()
         finally:
-            await self.lk_client.disconnect()
+            await self.session_mgr.close_all()

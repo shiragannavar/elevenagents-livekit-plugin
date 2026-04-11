@@ -16,7 +16,7 @@ Then point ElevenAgents custom LLM to:
 from elevenagents_livekit_plugin import ElevenAgentsBridge
 
 bridge = ElevenAgentsBridge(
-    room_name="elevenagents-bridge",
+    room_name="elevenagents",
     port=8013,
     buffer_words="",
 )
