@@ -9,7 +9,7 @@ Give your existing LiveKit agent a voice. No rewrite needed.
 
 ## Features
 
-- **Two-line integration** -- add voice to any existing LiveKit text agent with just two lines of code
+- **Minimal agent changes** -- add voice to any existing LiveKit text agent with just two lines of code, plus a bridge setup
 - **Per-conversation isolation** -- each conversation gets its own LiveKit room and agent session
 - **Single-process mode** -- embed the bridge directly into your agent with `bridge.embed(server)`
 - **Real-time streaming** -- low-latency text streaming between your agent and ElevenAgents
@@ -21,13 +21,15 @@ Give your existing LiveKit agent a voice. No rewrite needed.
 
 ## What Changes in Your Agent
 
-**Two lines.** That is all it takes to voice-enable an existing LiveKit text agent.
+Two changes to your agent, plus a bridge that connects it to ElevenAgents.
+
+**Agent changes (two lines):**
 
 ```diff
   # your existing agent.py
   from livekit.agents import Agent, AgentServer, AgentSession, JobContext, cli, room_io
   from livekit.plugins import openai
-+ from elevenagents_livekit_plugin import elevenagents_tools
++ from elevenagents_livekit_plugin import ElevenAgentsBridge, elevenagents_tools
 
   class MyAgent(Agent):
       def __init__(self):
@@ -37,7 +39,14 @@ Give your existing LiveKit agent a voice. No rewrite needed.
           )
 ```
 
-That is it. Your agent logic, your LLM, your prompts, your custom tools -- everything stays the same. The plugin handles all the plumbing between your agent and ElevenAgents voice.
+**Bridge setup (embed into same process):**
+
+```python
+bridge = ElevenAgentsBridge(room_name="elevenagents", port=8013)
+bridge.embed(server)
+```
+
+Your agent logic, your LLM, your prompts, your custom tools -- everything stays the same. The plugin handles all the plumbing between your agent and ElevenAgents voice.
 
 ### What you keep
 
