@@ -27,7 +27,9 @@ from livekit.agents import (
     AgentServer,
     AgentSession,
     JobContext,
+    RunContext,
     cli,
+    function_tool,
     room_io,
 )
 from livekit.plugins import openai
@@ -36,11 +38,29 @@ from elevenagents_livekit_plugin import elevenagents_tools  # <-- add this impor
 load_dotenv()
 
 
+@function_tool()
+async def calculator(ctx: RunContext, expression: str) -> str:
+    """Evaluate a math expression. Supports addition, subtraction,
+    multiplication, division, and exponentiation.
+
+    Args:
+        expression: A math expression to evaluate, e.g. "2 + 3 * 4"
+    """
+    allowed = set("0123456789+-*/.() ")
+    if not all(c in allowed for c in expression):
+        return "Error: invalid characters in expression"
+    try:
+        result = eval(expression)
+        return str(result)
+    except Exception as e:
+        return f"Error: {e}"
+
+
 class MyAgent(Agent):
     def __init__(self) -> None:
         super().__init__(
-            instructions="You are a helpful assistant. Keep responses short and clear.",
-            tools=[*elevenagents_tools()],  # <-- add tools here
+            instructions="You are a helpful assistant. Keep responses short and clear. Use the calculator tool for any math questions.",
+            tools=[calculator, *elevenagents_tools()],  # <-- add tools here
         )
 
 
