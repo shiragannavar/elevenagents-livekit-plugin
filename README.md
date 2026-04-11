@@ -7,6 +7,18 @@ Bridge between LiveKit Agents and ElevenAgents Voice Orchestration.
 
 Give your existing LiveKit agent a voice. No rewrite needed.
 
+## Features
+
+- **Two-line integration** -- add voice to any existing LiveKit text agent with just two lines of code
+- **Per-conversation isolation** -- each conversation gets its own LiveKit room and agent session
+- **Single-process mode** -- embed the bridge directly into your agent with `bridge.embed(server)`
+- **Real-time streaming** -- low-latency text streaming between your agent and ElevenAgents
+- **Built-in voice tools** -- end calls, pause turns, switch languages out of the box
+- **Any LLM** -- works with OpenAI, Anthropic, or any LLM supported by LiveKit Agents
+- **Any LiveKit deployment** -- compatible with both LiveKit OSS and LiveKit Cloud
+- **OpenAI-compatible API** -- exposes a standard `/v1/chat/completions` SSE endpoint
+- **Auto session cleanup** -- idle sessions are automatically disconnected after 5 minutes
+
 ## What Changes in Your Agent
 
 **Two lines.** That is all it takes to voice-enable an existing LiveKit text agent.
@@ -185,18 +197,38 @@ if __name__ == "__main__":
 
 If you do not have an agent yet, the code above is a complete working example.
 
-### Step 3. Create the bridge
+### Step 3. Embed the bridge (recommended)
 
-The bridge is a small standalone script that connects your LiveKit room to ElevenAgents:
+Add the bridge directly into your agent script for a single-process setup:
+
+```python
+# agent.py (continued from above)
+from elevenagents_livekit_plugin import ElevenAgentsBridge
+
+bridge = ElevenAgentsBridge(
+    room_name="elevenagents",
+    port=8013,
+    buffer_words="",
+)
+bridge.embed(server)
+
+if __name__ == "__main__":
+    cli.run_app(server)
+```
+
+Each conversation automatically gets its own isolated room and agent.
+
+**Alternative: standalone bridge**
+
+If you prefer running the bridge as a separate process:
 
 ```python
 # bridge.py
 from elevenagents_livekit_plugin import ElevenAgentsBridge
 
 bridge = ElevenAgentsBridge(
-    room_name="elevenagents-bridge",
+    room_name="elevenagents",
     port=8013,
-    buffer_words="",
 )
 bridge.run()
 ```
@@ -213,7 +245,17 @@ LIVEKIT_API_SECRET=your-api-secret
 
 ### Step 5. Run everything
 
-Open three terminals:
+**Single-process (embedded bridge):**
+
+```bash
+# Terminal 1: LiveKit server
+livekit-server --dev
+
+# Terminal 2: Your agent + bridge
+python agent.py start
+```
+
+**Two-process (standalone bridge):**
 
 ```bash
 # Terminal 1: LiveKit server
@@ -255,8 +297,7 @@ Start a conversation in ElevenAgents. Your voice goes to ElevenAgents, gets tran
 | `livekit_url` | `$LIVEKIT_URL` | LiveKit server WebSocket URL |
 | `api_key` | `$LIVEKIT_API_KEY` | LiveKit API key |
 | `api_secret` | `$LIVEKIT_API_SECRET` | LiveKit API secret |
-| `room_name` | `"elevenagents-bridge"` | LiveKit room name for the bridge |
-| `identity` | `"elevenagents-bridge"` | Participant identity in the room |
+| `room_name` | `"elevenagents"` | Room name prefix (each conversation gets a unique suffix) |
 | `port` | `8013` | HTTP server port |
 | `host` | `"0.0.0.0"` | HTTP server bind address |
 | `buffer_words` | `"... "` | Text sent immediately while waiting for the agent. Set to `""` to disable. |
@@ -332,12 +373,14 @@ elevenagents-livekit-plugin/
   src/
     elevenagents_livekit_plugin/
       __init__.py          # Public API exports
-      bridge.py            # ElevenAgentsBridge main class
+      bridge.py            # ElevenAgentsBridge main class (run/embed)
+      session_manager.py   # Per-conversation room isolation
       livekit_client.py    # LiveKit room connection and text streaming
       server.py            # FastAPI /v1/chat/completions endpoint
       adapter.py           # OpenAI SSE format conversion
       tools.py             # ElevenAgents system tools (end_call, etc.)
   examples/
-    basic.py               # Minimal usage example
+    basic.py               # Standalone bridge example
+    agent.py               # Single-process agent + bridge example
   pyproject.toml           # Package metadata and dependencies
 ```
