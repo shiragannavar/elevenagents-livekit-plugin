@@ -9,15 +9,15 @@ Give your existing LiveKit agent a voice. No rewrite needed.
 
 ## Features
 
-- **Minimal agent changes** -- add voice to any existing LiveKit text agent with just two lines of code, plus a bridge setup
-- **Per-conversation isolation** -- each conversation gets its own LiveKit room and agent session
-- **Single-process mode** -- embed the bridge directly into your agent with `bridge.embed(server)`
-- **Real-time streaming** -- low-latency text streaming between your agent and ElevenAgents
-- **Built-in voice tools** -- end calls, pause turns, switch languages out of the box
-- **Any LLM** -- works with OpenAI, Anthropic, or any LLM supported by LiveKit Agents
-- **Any LiveKit deployment** -- compatible with both LiveKit OSS and LiveKit Cloud
-- **OpenAI-compatible API** -- exposes a standard `/v1/chat/completions` SSE endpoint
-- **Auto session cleanup** -- idle sessions are automatically disconnected after 5 minutes
+- **Minimal agent changes** - add voice to any existing LiveKit text agent with just two lines of code, plus a bridge setup
+- **Per-conversation isolation** - each conversation gets its own LiveKit room and agent session
+- **Single-process mode** - embed the bridge directly into your agent with `bridge.embed(server)`
+- **Real-time streaming** - low-latency text streaming between your agent and ElevenAgents
+- **Built-in voice tools** - end calls, pause turns, switch languages out of the box
+- **Any LLM** - works with OpenAI, Anthropic, or any LLM supported by LiveKit Agents
+- **Any LiveKit deployment** - compatible with both LiveKit OSS and LiveKit Cloud
+- **OpenAI-compatible API** - exposes a standard `/v1/chat/completions` SSE endpoint
+- **Auto session cleanup** - idle sessions are automatically disconnected after 5 minutes
 
 ## What Changes in Your Agent
 
@@ -46,7 +46,7 @@ bridge = ElevenAgentsBridge(room_name="elevenagents", port=8013)
 bridge.embed(server)
 ```
 
-Your agent logic, your LLM, your prompts, your custom tools -- everything stays the same. The plugin handles all the plumbing between your agent and ElevenAgents voice.
+Your agent logic, your LLM, your prompts, your custom tools - everything stays the same. The plugin handles all the plumbing between your agent and ElevenAgents voice.
 
 ### What you keep
 
@@ -315,8 +315,8 @@ Start a conversation in ElevenAgents. Your voice goes to ElevenAgents, gets tran
 
 The bridge waits briefly after the agent's text response for any tool call signals. This is configured in the `LiveKitClient.send_and_stream()` method:
 
-- `timeout` (default `30.0`) -- Maximum wait for the agent's first response
-- `tool_wait` (default `0.5`) -- Wait time after text finishes for tool signals
+- `timeout` (default `30.0`) - Maximum wait for the agent's first response
+- `tool_wait` (default `0.5`) - Wait time after text finishes for tool signals
 
 ## Built-in Tools
 
