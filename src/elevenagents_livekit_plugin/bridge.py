@@ -1,4 +1,4 @@
-"""Main entry point — wires up the LiveKit client and HTTP server."""
+"""Main entry point -- wires up the LiveKit client and HTTP server."""
 
 import asyncio
 import logging
@@ -64,9 +64,10 @@ class ElevenAgentsBridge:
             self.room_name,
         )
 
-        # Start HTTP server
+        # Start HTTP server (log_config=None preserves our logging setup)
         config = uvicorn.Config(
-            self.app, host=self.host, port=self.port, log_level="info"
+            self.app, host=self.host, port=self.port, log_level="info",
+            log_config=None,
         )
         server = uvicorn.Server(config)
 
