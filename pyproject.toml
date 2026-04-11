@@ -4,10 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "elevenagents-livekit-plugin"
-version = "0.3.1"
+version = "0.3.3"
 description = "Bridge between LiveKit Agents and ElevenAgents Voice Orchestration"
 readme = "README.md"
 requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
 dependencies = [
     "livekit>=1.0.0",
     "livekit-api>=1.0.0",
